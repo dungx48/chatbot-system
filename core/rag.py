@@ -1,4 +1,4 @@
-from vector_db import VectorDatabase
+from core.vector_db import VectorDatabase
 from embeddings import Embeddings
 
 

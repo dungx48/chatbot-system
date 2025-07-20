@@ -6,3 +6,6 @@ python-dotenv==1.0.1
 sentence_transformers
 openai==1.70.0
 google-genai
+streamlit
+langchain_community
+langchain_experimental

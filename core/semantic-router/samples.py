@@ -41,5 +41,8 @@ chitchat_samples = [
     "Bạn có thể giúp tôi tìm hiểu về công nghệ mới không?",
     "Tôi muốn biết về các xu hướng thời trang hiện nay.",
     "Bạn có thể giúp tôi tìm hiểu về sức khỏe và dinh dưỡng không?",
-    "Tôi muốn biết về các mẹo làm đẹp."
+    "Tôi muốn biết về các mẹo làm đẹp.",
+    "Bạn có thể giúp tôi tìm hiểu về tâm lý học không?",
+    "ngu như chó",
+    "ngu như cạc"
 ]

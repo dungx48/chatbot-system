@@ -1,4 +1,8 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from router import Route, SemanticRouter
+
 from samples import product_samples, chitchat_samples
 from embeddings import Embeddings
 
@@ -26,8 +30,6 @@ router = SemanticRouter(
 )
 
 
-# print(router.routesEmbeddings["chitchatRoute"])
-
 # Example usage
-query = "ngu như cạc"
+query = "thẻ dùng trong bao lâu thì được cấp lại?"
 print(router.guide(query))
