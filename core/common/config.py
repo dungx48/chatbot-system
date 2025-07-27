@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     WIKI_JS_URL: str = Field(..., env="WIKI_JS_URL")
     LLM_URL_HOST: str = Field(..., env="LLM_URL_HOST")
     LLM_MODEL_NAME: str = Field(..., env="LLM_MODEL_NAME")
+    STREAM_OUTPUT: bool = Field(True, env="STREAM_OUTPUT")
 
     class Config:
         env_file = ".env"

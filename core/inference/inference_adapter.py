@@ -2,7 +2,7 @@ import httpx
 
 import google.generativeai as genai
 from openai import OpenAI
-
+from common.config import settings
 
 class BaseInferenceAdapter:
     def generate(self, prompt: str) -> str:
@@ -42,7 +42,7 @@ class OllamaInferenceAdapter(BaseInferenceAdapter):
         payload = {
             "model": self.model,
             "prompt": prompt,
-            "stream": False
+            "stream": settings.STREAM_OUTPUT
         }
         with httpx.Client(timeout=1200) as client:
             resp = client.post(url, json=payload)
