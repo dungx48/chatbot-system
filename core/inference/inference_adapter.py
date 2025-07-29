@@ -1,6 +1,7 @@
 import httpx
+import json
 
-import google.generativeai as genai
+# import google.generativeai as genai
 from openai import OpenAI
 from common.config import settings
 
@@ -23,14 +24,14 @@ class OpenAIInferenceAdapter(BaseInferenceAdapter):
         )
         return response.choices[0].message.content
 
-class GeminiInferenceAdapter(BaseInferenceAdapter):
-    def __init__(self, api_key: str, model: str):
-        self.client = genai.Client(api_key=api_key)
-        self.model = model
+# class GeminiInferenceAdapter(BaseInferenceAdapter):
+#     def __init__(self, api_key: str, model: str):
+#         self.client = genai.Client(api_key=api_key)
+#         self.model = model
 
-    def generate(self, prompt: str) -> str:
-        response = self.client.generate_content(self.model, prompt=prompt)
-        return response.text
+#     def generate(self, prompt: str) -> str:
+#         response = self.client.generate_content(self.model, prompt=prompt)
+#         return response.text
 
 class OllamaInferenceAdapter(BaseInferenceAdapter):
     def __init__(self, base_url: str, model: str):
@@ -47,14 +48,19 @@ class OllamaInferenceAdapter(BaseInferenceAdapter):
         with httpx.Client(timeout=1200) as client:
             resp = client.post(url, json=payload)
             resp.raise_for_status()
-            data = resp.json()
-            return data["response"]
+            # Phải đọc từng dòng, mỗi dòng là 1 object JSON nhỏ
+            result = ""
+            for line in resp.iter_lines():
+                if line:
+                    data = json.loads(line)
+                    result += data.get("response", "")
+            return result
 
 def get_inference_adapter(provider: str, api_key: str, model: str, base_url: str = None) -> BaseInferenceAdapter:
     if provider.lower() == "openai":
         return OpenAIInferenceAdapter(api_key, model)
-    elif provider.lower() == "gemini":
-        return GeminiInferenceAdapter(api_key, model)
+    # elif provider.lower() == "gemini":
+    #     return GeminiInferenceAdapter(api_key, model)
     elif provider == "ollama":
         if not base_url:
             raise ValueError("base_url is required for OllamaInferenceAdapter")

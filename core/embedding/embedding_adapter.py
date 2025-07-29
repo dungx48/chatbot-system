@@ -1,7 +1,7 @@
 import os
 from openai import OpenAI
 from sentence_transformers import SentenceTransformer
-import google.generativeai as genai
+# import google.generativeai as genai
 
 class BaseEmbeddingAdapter:
     def get_embedding(self, doc):
@@ -36,22 +36,22 @@ class SentenceTransformerAdapter(BaseEmbeddingAdapter):
         except Exception as e:
             print("SentenceTransformer embedding error: %s" % e)
 
-class GeminiAdapter(BaseEmbeddingAdapter):
-    def __init__(self, model_name=None):
-        self.model_name = model_name or "models/embedding-001"
-        try:
-            self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-        except Exception as e:
-            print("Không khởi tạo được Gemini: %s" % e)
-    def get_embedding(self, doc):
-        try:
-            response = self.client.models.embed_content(
-                model=self.model_name,
-                contents=doc
-            )
-            return response.embeddings[0].values
-        except Exception as e:
-            print("Gemini embedding error: %s" % e)
+# class GeminiAdapter(BaseEmbeddingAdapter):
+#     def __init__(self, model_name=None):
+#         self.model_name = model_name or "models/embedding-001"
+#         try:
+#             self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+#         except Exception as e:
+#             print("Không khởi tạo được Gemini: %s" % e)
+#     def get_embedding(self, doc):
+#         try:
+#             response = self.client.models.embed_content(
+#                 model=self.model_name,
+#                 contents=doc
+#             )
+#             return response.embeddings[0].values
+#         except Exception as e:
+#             print("Gemini embedding error: %s" % e)
 
 def get_adapter(adapter_type, model_name=None):
     adapter_type = adapter_type.lower()
@@ -59,7 +59,7 @@ def get_adapter(adapter_type, model_name=None):
         return OpenAIAdapter(model_name)
     elif adapter_type == "sentence_transformers":
         return SentenceTransformerAdapter(model_name)
-    elif adapter_type == "gemini":
-        return GeminiAdapter(model_name)
+    # elif adapter_type == "gemini":
+    #     return GeminiAdapter(model_name)
     else:
         print(f"Không hỗ trợ adapter: {adapter_type}")
