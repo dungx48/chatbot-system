@@ -1,12 +1,12 @@
 services:
   mychatbot:
     build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: mychatbot_container
+      context: ..
+      dockerfile: cicd/Dockerfile
+    container_name: chatbot_system_container
     working_dir: /app/core
     volumes:
-      - ./core:/app/core
+      - ../core:/app/core
     environment:
       - TZ=Asia/Ho_Chi_Minh
     ports:

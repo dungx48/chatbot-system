@@ -24,8 +24,8 @@ ENV PATH="/root/.local/bin/:$PATH"
 
 # Copy source code
 WORKDIR /app
-COPY ../core /app/core
-COPY ../core/requirements.txt /app/requirements.txt
+COPY core /app/core
+COPY core/requirements.txt /app/requirements.txt
 
 # Sync the project into a new environment, using the frozen lockfile
 RUN uv pip install --system -r requirements.txt
