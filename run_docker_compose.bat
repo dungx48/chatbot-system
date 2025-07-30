@@ -1,0 +1,1 @@
+docker compose -f cicd/docker-compose.yml up --build

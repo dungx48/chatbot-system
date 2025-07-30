@@ -1,0 +1,14 @@
+services:
+  mychatbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mychatbot_container
+    working_dir: /app/core
+    volumes:
+      - ./core:/app/core
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
