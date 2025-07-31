@@ -64,6 +64,7 @@ def get_inference_adapter(provider: str, api_key: str, model: str, base_url: str
     elif provider == "ollama":
         if not base_url:
             raise ValueError("base_url is required for OllamaInferenceAdapter")
+        print(f"Using OllamaInferenceAdapter with model: {model}")
         return OllamaInferenceAdapter(base_url, model)
     else:
         raise ValueError(f"Provider '{provider}' is not supported!")
