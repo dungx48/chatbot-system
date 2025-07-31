@@ -1,4 +1,3 @@
-from decouple import config
 import sys
 import uvicorn
 

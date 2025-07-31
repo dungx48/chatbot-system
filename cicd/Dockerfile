@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bookworm
+FROM python:3.11-slim-bullseye
 
 # Set timezone to Vietnam
 ENV TZ=Asia/Ho_Chi_Minh
@@ -24,11 +24,18 @@ ENV PATH="/root/.local/bin/:$PATH"
 
 # Copy source code
 WORKDIR /app
-COPY core /app/core
 COPY core/requirements.txt /app/requirements.txt
+COPY core/pyproject.toml ./
+COPY core/uv.lock ./
 
 # Sync the project into a new environment, using the frozen lockfile
-RUN uv pip install --system -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache uv sync
+
+# RUN uv pip install --system -r requirements.txt
+# RUN pip install -r requirements.txt
+
+COPY core /app/core
+
 
 # Presuming there is a `my_app` command provided by the project
 WORKDIR /app/core

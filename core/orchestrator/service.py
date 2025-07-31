@@ -45,10 +45,11 @@ class RAGService:
         retrieval_texts = [result.payload["text"] for result in retrieval_results if result.payload.get("text")]
         context = " ".join(retrieval_texts)
         prompt = f"""Context:\n{context}\n\nUser prompt: {req.user_prompt}"""
-        answer, process_time_inference = self.inference_service.generate_answer(prompt)
+        (think, answer), process_time_inference = self.inference_service.generate_answer(prompt)
 
         return {
             "answer": answer,
+            "think": think,
             "process_times": {
                 "embedding": process_time_embedding,
                 "retrieval": process_time_retrieval,
