@@ -39,4 +39,4 @@ COPY core /app/core
 
 # Presuming there is a `my_app` command provided by the project
 WORKDIR /app/core
-CMD ["python", "main.py"]
+CMD ["uv", "run", "main.py"]
