@@ -1,4 +1,5 @@
 services:
+
   mychatbot:
     build:
       context: ..
@@ -11,4 +12,16 @@ services:
       - TZ=Asia/Ho_Chi_Minh
     ports:
       - "8000:8000"
-    restart: unless-stopped
+    restart: always
+
+  streamlit_fe:
+    build:
+      context: ..
+      dockerfile: fe-streamlit/Dockerfile
+    container_name: streamlit_fe_container
+    working_dir: /app
+    volumes:
+      - ../fe-streamlit:/app
+    ports:
+      - "8501:8501"
+    restart: always

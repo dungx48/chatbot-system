@@ -1,9 +1,14 @@
-import streamlit as st
+import os
 import requests
+import streamlit as st
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path=".env")
+
+BACKEND_API_URL = os.getenv("BACKEND_API_URL", "http://localhost:8000/v1/chat")
 
 st.set_page_config(page_title="Chatbot Demo", page_icon="🤖", layout="wide")
 st.title("🤖 Chatbot Demo")
-st.write("Giao diện chat đơn giản với Streamlit!")
 
 if "messages" not in st.session_state:
     st.session_state.messages = [
@@ -24,7 +29,7 @@ if prompt := st.chat_input("Nhập câu hỏi..."):
     with st.spinner("🤖 Đang suy nghĩ..."):
         try:
             res = requests.post(
-                "http://localhost:8000/v1/chat",
+                BACKEND_API_URL,
                 json={
                     "user_prompt": "Là một nhân viên ngân hàng, tôi sẽ tư vấn cho khách",
                     "question": prompt,
