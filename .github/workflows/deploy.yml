@@ -26,7 +26,7 @@ jobs:
 
             git pull origin main
 
-            docker-compose -f cicd/docker-compose.yml down
-            docker-compose -f cicd/docker-compose.yml up --build -d
-            
+            sudo docker-compose -f cicd/docker-compose.yml down
+            sudo docker-compose -f cicd/docker-compose.yml up --build -d
+
           EOF
