@@ -8,7 +8,7 @@ chat_router = APIRouter()
 chat_service = RAGService()
 
 
-@chat_router.post("/chat", response_model=ChatResponse)
+@chat_router.post("/chat/v1", response_model=ChatResponse)
 async def chat_endpoint(req: ChatRequest, svc: RAGService = Depends(lambda: chat_service)):
     result = await svc.chat(req)
     return ChatResponse(**result)
