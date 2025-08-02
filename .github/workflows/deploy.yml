@@ -1,0 +1,32 @@
+name: Deploy Chatbot App
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Thiết lập SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+      - name: Pull & Deploy trên server
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            cd ~/vdungx/chatbot-system
+
+            git pull origin main
+
+            docker-compose -f cicd/docker-compose.yml down
+            docker-compose -f cicd/docker-compose.yml up --build -d
+            
+          EOF
