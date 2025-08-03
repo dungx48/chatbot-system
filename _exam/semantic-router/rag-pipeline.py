@@ -3,7 +3,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from router import Route, SemanticRouter
 
-from samples import product_samples, chitchat_samples
+from samples import business_samples, chitchat_samples
 from embeddings import Embeddings
 
 embedding = Embeddings(
@@ -11,9 +11,9 @@ embedding = Embeddings(
     model_name="BAAI/bge-m3"
 )
 
-productRoute = Route(
-    name="productRoute",
-    samples=product_samples
+businessRoute = Route(
+    name="businessRoute",
+    samples=business_samples
 )
 
 chitchatRoute = Route(
@@ -24,7 +24,7 @@ chitchatRoute = Route(
 router = SemanticRouter(
     embedding=embedding,
     routers=[
-        productRoute, 
+        businessRoute, 
         chitchatRoute
     ]
 )
