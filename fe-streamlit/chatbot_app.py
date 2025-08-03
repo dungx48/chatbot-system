@@ -2,9 +2,10 @@ import os
 import requests
 import streamlit as st
 from dotenv import load_dotenv
+import time
+import threading
 
 load_dotenv(dotenv_path=".env")
-
 BACKEND_API_URL = os.getenv("BACKEND_API_URL", "http://localhost:8000/v1/chat")
 
 st.set_page_config(page_title="Chatbot Demo", page_icon="🤖", layout="wide")
@@ -15,31 +16,51 @@ if "messages" not in st.session_state:
         {"role": "bot", "content": "Xin chào! Tôi có thể giúp gì cho bạn?"}
     ]
 
-# Hiển thị lịch sử chat
 for msg in st.session_state.messages:
     align = "user" if msg["role"] == "user" else "assistant"
     st.chat_message(align).write(msg["content"])
 
+def call_api(prompt, result_container):
+    try:
+        res = requests.post(
+            BACKEND_API_URL,
+            json={
+                "user_prompt": "Là một nhân viên ngân hàng, tôi sẽ tư vấn cho khách",
+                "question": prompt,
+            },
+            timeout=150,
+        )
+        data = res.json()
+        answer = data.get("answer", "Không nhận được phản hồi từ bot.")
+    except Exception as e:
+        answer = f"Lỗi: {e}"
+    result_container["answer"] = answer
+
 if prompt := st.chat_input("Nhập câu hỏi..."):
-    # 1. Hiện câu hỏi ngay
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.chat_message("user").write(prompt)
 
-    # 2. Hiệu ứng loading trong lúc gọi API
-    with st.spinner("🤖 Đang suy nghĩ..."):
-        try:
-            res = requests.post(
-                BACKEND_API_URL,
-                json={
-                    "user_prompt": "Là một nhân viên ngân hàng, tôi sẽ tư vấn cho khách",
-                    "question": prompt,
-                },
-                timeout=150,
-            )
-            data = res.json()
-            answer = data.get("answer", "Không nhận được phản hồi từ bot.")
-        except Exception as e:
-            answer = f"Lỗi: {e}"
+    # Chuẩn bị biến chia sẻ kết quả cho thread
+    result_container = {"answer": None}
 
-        st.session_state.messages.append({"role": "bot", "content": answer})
+    # Tạo và chạy thread API
+    thread = threading.Thread(target=call_api, args=(prompt, result_container))
+    thread.start()
+
+    # Hiển thị timer realtime
+    timer_placeholder = st.empty()
+    start_time = time.time()
+    while thread.is_alive():
+        elapsed = time.time() - start_time
+        timer_placeholder.info(f"⏳ Đang suy nghĩ... {elapsed:.1f} giây")
+        time.sleep(0.1)  # Cập nhật mỗi 0.1s
+
+    thread.join()
+    elapsed = time.time() - start_time
+    timer_placeholder.success(f"✅ Thời gian trả lời: {elapsed:.2f} giây")
+    
+    # Hiển thị kết quả
+    answer = result_container["answer"] + f"\n\n⏱️ Thời gian phản hồi: {elapsed:.2f} giây"
+    st.session_state.messages.append({"role": "bot", "content": answer})
+
     st.rerun()
