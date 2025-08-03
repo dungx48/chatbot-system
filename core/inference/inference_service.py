@@ -1,5 +1,3 @@
-import re
-
 from core.common.calcu_process_time import measure_time
 from core.inference.inference_adapter import get_inference_adapter
 from core.models.response.generate_answer_response import GenerateAnswerResponse
@@ -15,7 +13,6 @@ class InferenceService:
         result = self.extract_think_and_answer(raw_answer)
         return GenerateAnswerResponse(**result)
     
-    # Phương thức này để xử lý kết quả trả về từ mô hình
     # Tách (think) và (answer)
     @staticmethod
     def extract_think_and_answer(raw_answer: str):
@@ -28,3 +25,17 @@ class InferenceService:
         else:
             # Không có think, trả answer bình thường
             return {"think": "", "answer": raw_answer.strip()}
+        
+    # —— Phương thức mới cho streaming —— #
+    async def generate_answer_stream(self, prompt: str):
+        """
+        Trả về async generator, yield lần lượt các token/text
+        khi adapter nhận về chunk (model API phải hỗ trợ stream=True).
+        """
+        # Giả sử adapter của bạn định nghĩa method stream_generate:
+        # async def stream_generate(self, prompt: str, **kwargs) -> AsyncIterator[ChunkType]
+        async for chunk in self.adapter.stream_generate(prompt=prompt):
+            # ChunkType có cấu trúc tương tự OpenAI: chunk.choices[0].delta.content
+            token = chunk.choices[0].delta.get("content", "")
+            if token:
+                yield token
