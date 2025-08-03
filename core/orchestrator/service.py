@@ -65,7 +65,8 @@ class RAGService:
                 "embedded_question": vector_question
             }
         except Exception as e:
-            raise("Error in RAGService.chat")
+            print(f"Error in RAGService: {e}")
+            raise
     
     def _build_prompt(self, req: ChatRequest, vector_question:list[float], route_info: RouterResultDto) -> str:
         if(route_info.best_route == ConstantRouter.CHITCHAT_ROUTE or route_info.best_score < settings.SCORE_ROUTER_THRESHOLD):
