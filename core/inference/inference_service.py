@@ -2,6 +2,7 @@ import re
 
 from core.common.calcu_process_time import measure_time
 from core.inference.inference_adapter import get_inference_adapter
+from core.models.response.generate_answer_response import GenerateAnswerResponse
 
 
 class InferenceService:
@@ -9,11 +10,11 @@ class InferenceService:
         self.adapter = get_inference_adapter(provider, api_key, model, base_url)
 
     @measure_time
-    def generate_answer(self, prompt: str) -> str:
+    def generate_answer(self, prompt: str) -> GenerateAnswerResponse:
         raw_answer = self.adapter.generate(prompt)
-        think, answer = self.extract_think_and_answer(raw_answer)
-        return think, answer
-
+        result = self.extract_think_and_answer(raw_answer)
+        return GenerateAnswerResponse(**result)
+    
     # Phương thức này để xử lý kết quả trả về từ mô hình
     # Tách (think) và (answer)
     @staticmethod
@@ -23,7 +24,7 @@ class InferenceService:
             m = re.search(r'<think>(.*?)</think>', raw_answer, flags=re.DOTALL)
             think = m.group(1).strip() if m else ""
             answer = re.sub(r'<think>.*?</think>', '', raw_answer, flags=re.DOTALL).strip()
-            return think, answer
+            return {"think": think, "answer": answer}
         else:
             # Không có think, trả answer bình thường
-            return "", raw_answer.strip()
+            return {"think": "", "answer": raw_answer.strip()}

@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     LLM_URL_HOST: str = Field(..., env="LLM_URL_HOST")
     LLM_MODEL_NAME: str = Field(..., env="LLM_MODEL_NAME")
     STREAM_OUTPUT: bool = Field(True, env="STREAM_OUTPUT")
+    SCORE_ROUTER_THRESHOLD: float = Field(..., env="SCORE_ROUTER_THRESHOLD")
 
     class Config:
         env_file = ".env"

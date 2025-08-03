@@ -25,7 +25,7 @@ def call_api(prompt, result_container):
         res = requests.post(
             BACKEND_API_URL,
             json={
-                "user_prompt": "Là một nhân viên ngân hàng, tôi sẽ tư vấn cho khách",
+                "user_prompt": "",
                 "question": prompt,
             },
             timeout=150,
