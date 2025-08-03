@@ -8,8 +8,8 @@ import threading
 load_dotenv(dotenv_path=".env")
 BACKEND_API_URL = os.getenv("BACKEND_API_URL", "http://localhost:8000/v1/chat")
 
-st.set_page_config(page_title="Chatbot Demo", page_icon="🤖", layout="wide")
-st.title("🤖 Chatbot Demo")
+st.set_page_config(page_title="Chatbot Chotbat", page_icon="🤖", layout="wide")
+st.title("🤖 Chatbot Chotbat")
 
 if "messages" not in st.session_state:
     st.session_state.messages = [
