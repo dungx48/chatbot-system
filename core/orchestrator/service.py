@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 from core.embedding.embedding_service import EmbeddingService
 from core.inference.inference_service import InferenceService
 from core.models.request.chat_request import ChatRequest
@@ -68,9 +70,10 @@ class RAGService:
             print(f"Error in RAGService: {e}")
             raise
     
-    def _build_prompt(self, req: ChatRequest, vector_question:list[float], route_info: RouterResultDto) -> str:
+    def _build_prompt(self, req: ChatRequest, vector_question:list[float], route_info: RouterResultDto) -> Tuple[str, float]:
         if(route_info.best_route == ConstantRouter.CHITCHAT_ROUTE or route_info.best_score < settings.SCORE_ROUTER_THRESHOLD):
             prompt = f"""Context:\n{req.question}"""
+            retrieval_time = 0.0
 
         elif(route_info.best_route == ConstantRouter.BUSINESS_ROUTE):
             # Retrieve relevant context
