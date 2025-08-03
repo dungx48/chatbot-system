@@ -1,6 +1,7 @@
 from core.embedding.embedding_service import EmbeddingService
 from core.inference.inference_service import InferenceService
 from core.models.request.chat_request import ChatRequest
+from core.models.dto.router_result_dto import RouterResultDto
 from core.retrieval.retrieval_service import RetrievalService
 from core.router.routing_service import RoutingService
 from core.common.constant import ConstantRouter
@@ -38,43 +39,43 @@ class RAGService:
         embedding question -> retrieve relevant context -> generate answer
         
         """
+        try:
+            # Embedding question
+            vector_question, embedding_time = self.embedding_service.encode(req.question)
 
-        # Embedding question
-        vector_question, process_time_embedding = self.embedding_service.encode(req.question)
+            # Get promt from input
+            route_info = self.router.route_query(req.question)
+            prompt, retrieval_time = self._build_prompt(req, vector_question, route_info)
 
-        # Get promt from input
-        prompt = self.get_promt_by_input(req, vector_question)
+            # Generate answer
+            gene_result, inference_time = self.inference_service.generate_answer(prompt)
 
-        # Generate answer
-        gene_result, process_time_inference = self.inference_service.generate_answer(prompt)
-
-        return {
-            "answer": gene_result.answer,
-            "think": gene_result.think,
-            "process_times": {
-                "embedding": process_time_embedding,
-                "retrieval": self.process_time_retrieval,
-                "inference": process_time_inference
-            },
-            "router_result": {
-                "best_route": self.router_result.best_route,
-                "best_score": self.router_result.best_score
-            },
-            "embedded_question": vector_question
-        }
+            return {
+                "answer": gene_result.answer,
+                "think": gene_result.think,
+                "process_times": {
+                    "embedding": embedding_time,
+                    "retrieval": retrieval_time,
+                    "inference": inference_time
+                },
+                "router_result": {
+                    "best_route": route_info.best_route,
+                    "best_score": route_info.best_score
+                },
+                "embedded_question": vector_question
+            }
+        except Exception as e:
+            raise("Error in RAGService.chat")
     
-    def get_promt_by_input(self, req: ChatRequest, vector_question:list[float]) -> str:
-        # Route question to appropriate service
-        self.router_result = self.router.route_query(req.question)
-
-        if(self.router_result.best_route == ConstantRouter.CHITCHAT_ROUTE or self.router_result.best_score < settings.SCORE_ROUTER_THRESHOLD):
+    def _build_prompt(self, req: ChatRequest, vector_question:list[float], route_info: RouterResultDto) -> str:
+        if(route_info.best_route == ConstantRouter.CHITCHAT_ROUTE or route_info.best_score < settings.SCORE_ROUTER_THRESHOLD):
             prompt = f"""Context:\n{req.question}"""
 
-        elif(self.router_result.best_route == ConstantRouter.BUSINESS_ROUTE):
+        elif(route_info.best_route == ConstantRouter.BUSINESS_ROUTE):
             # Retrieve relevant context
-            retrieval_results, self.process_time_retrieval = self.retrieval_service.search(vector_question)
+            retrieval_results, retrieval_time = self.retrieval_service.search(vector_question)
             retrieval_texts = [result.payload["text"] for result in retrieval_results if result.payload.get("text")]
             context = " ".join(retrieval_texts)
             prompt = f"""Context:\n{context}\n\nUser prompt: {req.user_prompt}"""
         
-        return prompt
+        return prompt, retrieval_time
