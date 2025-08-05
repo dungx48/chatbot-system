@@ -1,7 +1,7 @@
 import streamlit as st
 
 
-st.write("# Chatbot keke 👋")
+st.write("# Chatbot Chotbat 👋")
 
 
 st.markdown(
