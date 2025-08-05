@@ -107,23 +107,52 @@ def main() -> None:
         # Streaming response
         start = time.time()
         with st.chat_message("assistant"):
-            text_ph = st.empty()
             timer_ph = st.empty()
-            full_resp = ""
+            think_ph = st.empty()     # để hiển thị <think>…</think>
+            answer_ph = st.empty()    # để hiển thị phần answer
+
+            in_think = True           # cờ đang ở giai đoạn think
+            think_buf = ""
+            answer_buf = ""
+
 
             for token in client.stream_chat(prompt):
-                full_resp += token
-                text_ph.write(full_resp)
+                if in_think:
+                    think_buf += token
+                    # nếu phát hiện kết thúc <think>
+                    if "</think>" in think_buf:
+                        # đo thời gian suy nghĩ
+                        total_think = time.time() - start
+                        # xoá hoàn toàn vùng think
+                        think_ph.empty()
+                        # hiển thị thông báo đã suy nghĩ x giây
+                        timer_ph.info(f"✅ Đã suy nghĩ xong sau {total_think:.2f}s")
+                        # phần dư sau </think> là bắt đầu của answer
+                        _, after = think_buf.split("</think>", 1)
+                        answer_buf += after
+                        answer_ph.write(answer_buf)
+                        in_think = False
+                    else:
+                        # vẫn đang suy nghĩ, show nội dung trong think
+                        think_ph.info(think_buf)
+                        # cập nhật thời gian chờ
+                        elapsed = time.time() - start
+                        timer_ph.info(f"⏳ Đang suy nghĩ… {elapsed:.1f}s")
+                        elapsed = time.time() - start
+                        timer_ph.info(f"⏳ Đang xử lý… {elapsed:.1f}s")
+                else:
+                    # giai đoạn hiển thị answer
+                    answer_buf += token
+                    answer_ph.write(answer_buf)
 
-                elapsed = time.time() - start
-                timer_ph.info(f"⏳ Đang xử lý… {elapsed:.1f}s")
-
-            total = time.time() - start
-            timer_ph.success(f"✅ Hoàn thành sau {total:.2f}s")
+            # nếu user stream không có <think> tag, vẫn hiện timer ở đây
+            if in_think:
+                total_think = time.time() - start
+                think_ph.empty()
+                timer_ph.success(f"🤔 Đã suy nghĩ trong {total_think:.2f}s")
 
         # Lưu vào history
-        full_resp += f"\n\n⏱️ Thời gian phản hồi: {total:.2f}s"
-        st.session_state.messages.append({"role":"assistant","content":full_resp})
+        st.session_state.messages.append({"role":"assistant","content":timer_ph})
 
 if __name__ == "__main__":
     main()
