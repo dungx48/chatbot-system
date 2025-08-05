@@ -10,7 +10,7 @@ from core.models.response.chat_response import ChatResponse
 chat_router = APIRouter()
 
 chat_service_v1 = RAGServiceV1_0()
-chat_service_v1_1 = RAGServiceV1_0()
+chat_service_v1_1 = RAGServiceV1_1()
 
 
 
@@ -21,5 +21,7 @@ async def chat_endpoint(req: ChatRequest, svc: RAGServiceV1_0 = Depends(lambda: 
 
 @chat_router.post("/chat/v1_1")
 async def chat_stream(req: ChatRequest, svc: RAGServiceV1_1 = Depends(lambda: chat_service_v1_1)):
-    result = await svc.chat(req)
-    return StreamingResponse(result, media_type="application/json")
+    return StreamingResponse(
+        svc.stream_chat(req),
+        media_type="application/x-ndjson"
+        )

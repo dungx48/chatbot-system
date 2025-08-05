@@ -1,10 +1,11 @@
 import json
-from fastapi import HTTPException
+from typing import AsyncGenerator
+
 from core.models.request.chat_request import ChatRequest
 from core.orchestrator.rag_service_v1 import RAGServiceV1_0
 
 class RAGServiceV1_1(RAGServiceV1_0):
-    async def stream_chat(self, req: ChatRequest):
+    async def stream_chat(self, req: ChatRequest) -> AsyncGenerator[str, None]:
         try:
             # 1) embedding + router
             vector_question, embedding_time = self.embedding_service.encode(req.question)
@@ -31,6 +32,5 @@ class RAGServiceV1_1(RAGServiceV1_0):
                 yield json.dumps({"token": token}) + "\n"
 
         except Exception as e:
-            # nếu có lỗi thì cũng phải dừng stream một cách rõ ràng
             err = {"error": str(e)}
             yield json.dumps(err) + "\n"

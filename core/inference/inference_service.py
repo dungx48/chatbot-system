@@ -1,3 +1,5 @@
+from typing import AsyncIterator, Union
+
 from core.common.calcu_process_time import measure_time
 from core.inference.inference_adapter import get_inference_adapter
 from core.models.response.generate_answer_response import GenerateAnswerResponse
@@ -27,7 +29,7 @@ class InferenceService:
             return {"think": "", "answer": raw_answer.strip()}
         
     # —— Phương thức mới cho streaming —— #
-    async def generate_answer_stream(self, prompt: str):
+    async def generate_answer_stream(self, prompt: str) -> AsyncIterator[str]:
         """
         Trả về async generator, yield lần lượt các token/text
         khi adapter nhận về chunk (model API phải hỗ trợ stream=True).
@@ -35,7 +37,20 @@ class InferenceService:
         # Giả sử adapter của bạn định nghĩa method stream_generate:
         # async def stream_generate(self, prompt: str, **kwargs) -> AsyncIterator[ChunkType]
         async for chunk in self.adapter.stream_generate(prompt=prompt):
-            # ChunkType có cấu trúc tương tự OpenAI: chunk.choices[0].delta.content
-            token = chunk.choices[0].delta.get("content", "")
-            if token:
-                yield token
+            if isinstance(chunk, str):
+                yield chunk
+                continue
+            # 2) Ngược lại cố gắng lấy token theo OpenAI‐style
+            try:
+                choice = chunk.choices[0]
+                # Nếu delta là object có .content
+                if hasattr(choice.delta, "content"):
+                    token = choice.delta.content
+                else:
+                    # hoán sang dict‐based
+                    token = choice.get("delta", {}).get("content", "")
+                if token:
+                    yield token
+            except Exception:
+                # bỏ qua mọi chunk không lấy được content
+                continue
