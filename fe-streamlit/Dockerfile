@@ -9,4 +9,4 @@ COPY fe-streamlit/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY fe-streamlit/.env ./
-CMD ["streamlit", "run", "chatbot_app.py", "--server.address=0.0.0.0", "--server.port=8501"]
+CMD ["streamlit", "run", "Hello.py", "--server.address=0.0.0.0", "--server.port=8501"]
