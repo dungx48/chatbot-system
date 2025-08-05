@@ -9,7 +9,7 @@ from core.router.routing_service import RoutingService
 from core.common.constant import ConstantRouter
 from core.common.config import settings
 
-class RAGService:
+class RAGServiceV1_0:
     def __init__(self):
         """
         :param embedding_model: Model used for embedding questions.
